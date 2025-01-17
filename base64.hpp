@@ -1,29 +1,37 @@
-#ifndef BOOST_BEAST_DETAIL_BASE64_IPP
-#define BOOST_BEAST_DETAIL_BASE64_IPP
+// from https://www.boost.org/doc/libs/1_87_0/boost/beast/core/detail/base64.hpp
+// distributed under the same License
+#ifndef BASE64_HPP
+#define BASE64_HPP
 
 #include <cctype>
 #include <string>
 #include <utility>
 
-namespace boost {
-namespace beast {
-namespace detail {
-
 namespace base64 {
 
-/// Returns max chars needed to encode a base64 string
-std::size_t const encoded_size(std::size_t n)
+static const int MAX_BASE64_WIDTH = 76; 
+
+/// \brief Returns max chars needed to encode a base64 string
+///
+/// \param[in] n Size of char string
+/// \return max size of encoded string generated from n chars
+inline std::size_t const encoded_size(std::size_t n)
 {
     return 4 * ((n + 2) / 3);
 }
 
-/// Returns max bytes needed to decode a base64 string
+/// \brief Returns max bytes needed to decode a base64 string
+///
+/// \param[in] n Size of base64 string
+/// \return size of char string form n length base64 string
 inline std::size_t const decoded_size(std::size_t n)
 {
     return n / 4 * 3; // requires n&3==0, smaller
 }
 
-char const* get_alphabet()
+/// \brief get valid character
+/// \return valid char
+inline char const* get_alphabet()
 {
     static char const tab[] = {
         "ABCDEFGHIJKLMNOP"
@@ -34,7 +42,7 @@ char const* get_alphabet()
     return &tab[0];
 }
 
-signed char const* get_inverse()
+inline signed char const* get_inverse()
 {
     static signed char const tab[] = {
          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, //   0-15
@@ -57,22 +65,20 @@ signed char const* get_inverse()
     return &tab[0];
 }
 
-/** Encode a series of octets as a padded, base64 string.
-
-    The resulting string will not be null terminated.
-
-    @par Requires
-
-    The memory pointed to by `out` points to valid memory
-    of at least `encoded_size(len)` bytes.
-
-    @return The number of characters written to `out`. This
-    will exclude any null termination.
-*/
-std::size_t encode(void* dest, void const* src, std::size_t len)
+/// \brief Encode a series of octets as a padded, base64 string.
+/// The resulting string will not be null terminated.
+/// The memory pointed to by `out` points to valid memory
+/// of at least `encoded_size(len)` bytes.
+///
+/// \param[in] dest pointer to location where characters are to be stored
+/// \param[in] src pointer to source data
+/// \param[in] len length of input string
+/// \return The number of characters written to `out`. This
+///         will exclude any null termination.
+inline std::size_t encode(char* dest, char const* src, std::size_t len)
 {
-    char*      out = static_cast<char*>(dest);
-    char const* in = static_cast<char const*>(src);
+    char*      out = dest;
+    char const* in = src;
     const char * tab = base64::get_alphabet();
 
     for(size_t n = len / 3; n--;)
@@ -107,18 +113,17 @@ std::size_t encode(void* dest, void const* src, std::size_t len)
     return out - static_cast<char*>(dest);
 }
 
-/** Decode a padded base64 string into a series of octets.
-
-    @par Requires
-
-    The memory pointed to by `out` points to valid memory
-    of at least `decoded_size(len)` bytes.
-
-    @return The number of octets written to `out`, and
-    the number of characters read from the input string,
-    expressed as a pair.
-*/
-std::pair<std::size_t, std::size_t> decode(void* dest, char const* src, std::size_t len)
+/// \brief Decode a padded base64 string into a series of octets.
+/// The memory pointed to by `out` points to valid memory
+/// of at least `decoded_size(len)` bytes.
+///
+/// \param[in] dest
+/// \param[in] src
+/// \param[in] len
+/// \return  The number of octets written to `out`, and
+///          the number of characters read from the input string,
+///          expressed as a pair.
+inline std::pair<std::size_t, std::size_t> decode(void* dest, char const* src, std::size_t len)
 {
     char* out = static_cast<char*>(dest);
     unsigned char const * in = reinterpret_cast<unsigned char const*>(src);
@@ -165,8 +170,4 @@ std::pair<std::size_t, std::size_t> decode(void* dest, char const* src, std::siz
 
 } // base64
 
-} // detail
-} // beast
-} // boost
-
-#endif
+#endif //BASE64_HPP
