@@ -10,6 +10,7 @@
 namespace base64 {
 
 static const int MAX_BASE64_WIDTH = 76; 
+static const unsigned int IO_CHUNK = 1024 * 48;
 
 /// \brief Returns max chars needed to encode a base64 string
 ///
@@ -81,7 +82,7 @@ inline std::size_t encode(char* dest, char const* src, std::size_t len)
     char const* in = src;
     const char * tab = base64::get_alphabet();
 
-    for(size_t n = len / 3; n--;)
+    for(size_t n = len / 3 ;n > 0;  n--)
     {
         *out++ = tab[ (in[0] & 0xfc) >> 2];
         *out++ = tab[((in[0] & 0x03) << 4) + ((in[1] & 0xf0) >> 4)];
